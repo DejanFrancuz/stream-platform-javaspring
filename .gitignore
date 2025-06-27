@@ -1,0 +1,5 @@
+# Project exclude paths
+/main/target/
+/modules/auth/target/
+/modules/shared/target/
+/modules/users/target/

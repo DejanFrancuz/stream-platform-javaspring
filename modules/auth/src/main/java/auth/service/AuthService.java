@@ -38,6 +38,10 @@ public class AuthService {
         User user = userService.loadUserByEmail(email);  // ili loadUserByUsername
         return user;
     }
+//
+//    public User register(LoginRequest req){
+//
+//    }
 
     public String generateToken(String username, Set<String> perms) {
         return jwtUtil.generateToken(username, perms);

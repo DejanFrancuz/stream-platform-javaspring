@@ -42,6 +42,7 @@ public class SpringSecurityConfig{
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/users/add").permitAll()
                         // ovde dodaj i ostale javne rute ako imaš
                         .anyRequest().authenticated()
                 )

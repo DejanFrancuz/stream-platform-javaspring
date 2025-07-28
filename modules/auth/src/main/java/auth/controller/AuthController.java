@@ -59,6 +59,22 @@ public class AuthController {
         return ResponseEntity.ok(userDto);
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<User> register(
+            @RequestBody LoginRequest request,
+            HttpServletResponse response
+    ) {
+        // 1) autentifikuj i uzmi user podatke
+        System.out.println("ulazim " + request);
+        User userDto = authService.login(request);
+
+        if(userDto != null){
+            return  ResponseEntity.internalServerError().build();
+        }
+
+        return ResponseEntity.ok(userDto);
+    }
+
     @GetMapping("/get-person")
     public ResponseEntity<User> getCurrentUser(Authentication auth) {
         String username = auth.getName();

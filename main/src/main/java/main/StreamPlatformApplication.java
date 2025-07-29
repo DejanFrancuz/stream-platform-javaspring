@@ -5,11 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.context.annotation.ComponentScan;
 
 @EnableScheduling
 @SpringBootApplication(scanBasePackages = {
-        "main", "users", "auth", "shared"
+        "main", "users", "movies", "auth", "shared"
 })
 @EnableJpaRepositories(basePackages = "users.repository")
 @EntityScan(basePackages = "users.model")

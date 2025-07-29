@@ -17,6 +17,10 @@ spring:
     hibernate:
       ddl-auto: update
 
+  web:
+    resources:
+      static-locations: file:media/
+
 logging:
   level:
     org:

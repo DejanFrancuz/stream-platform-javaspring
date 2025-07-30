@@ -10,8 +10,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication(scanBasePackages = {
         "main", "users", "movies", "auth", "shared"
 })
-@EnableJpaRepositories(basePackages = "users.repository")
-@EntityScan(basePackages = "users.model")
+@EnableJpaRepositories(basePackages = {"users.repository", "movies.repository"})
+@EntityScan(basePackages = {"users.model", "movies.model"})
 public class StreamPlatformApplication {
 
     public static void main(String[] args) {

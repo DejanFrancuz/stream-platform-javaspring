@@ -10,10 +10,10 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>main</module>
-        <module>modules/users</module>
-        <module>modules/movies</module>
         <module>modules/shared</module>
         <module>modules/auth</module>
+        <module>modules/users</module>
+        <module>modules/movies</module>
     </modules>
 
     <dependencies>

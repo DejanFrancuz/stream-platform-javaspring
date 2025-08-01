@@ -1,6 +1,5 @@
-package auth.security;
+package main.security;
 
-import auth.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -10,11 +9,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import users.service.UserService;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,7 +18,7 @@ import java.util.List;
 @Component
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final UserService userService;
+//    private final UserService userService;
     private final JwtUtil jwtUtil;
 
     @Override

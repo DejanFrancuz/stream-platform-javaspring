@@ -1,14 +1,13 @@
-package auth.service;
+package main.services;
 
-import auth.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import model.LoginRequest;
+import main.models.LoginRequest;
+import main.models.User;
+import main.security.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
-import users.model.User;
-import users.service.UserService;
 
 import java.util.Set;
 
@@ -21,16 +20,17 @@ public class AuthService {
 
     public User login(LoginRequest req) {
         try {
-            System.out.println("pucam pre authentication");
+            System.out.println("pucam pre authentication" +req);
             authManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword())
+                    new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword())
             );
-        } catch (AuthenticationException ex) {
-            throw new RuntimeException("Invalid credentials");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new RuntimeException("Invalid credentials" + ex.fillInStackTrace());
         }
 
         System.out.println("pre load user by email");
-        User user = userService.loadUserByEmail(req.getUsername());  // ili loadUserByUsername
+        User user = userService.loadUserByEmail(req.getEmail());
         return user;
     }
 

@@ -8,11 +8,14 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="movies" />
-        <module name="shared" />
         <module name="main" />
-        <module name="auth" />
-        <module name="users" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="apps" target="17" />
+      <module name="auth" target="17" />
+      <module name="shared" target="17" />
+      <module name="users" target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>

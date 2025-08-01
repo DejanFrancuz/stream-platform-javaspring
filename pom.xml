@@ -10,16 +10,17 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>main</module>
-        <module>modules/shared</module>
-        <module>modules/auth</module>
-        <module>modules/users</module>
-        <module>modules/movies</module>
+<!--        <module>modules/apps</module>-->
+<!--        <module>modules/shared</module>-->
+<!--        <module>modules/auth</module>-->
+<!--        <module>modules/users</module>-->
+<!--        <module>modules/movies</module>-->
     </modules>
 
     <dependencies>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
         </dependency>
     </dependencies>
 
@@ -41,9 +42,9 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>8.0.29</version>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>8.2.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -1,18 +1,15 @@
-package auth.controller;
+package main.controllers;
 
-import auth.service.AuthService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-import model.LoginRequest;
+import main.models.LoginRequest;
+import main.models.User;
+import main.services.AuthService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import users.model.User;
-import users.model.UserDto;
 
 import java.time.Duration;
 import java.util.Set;

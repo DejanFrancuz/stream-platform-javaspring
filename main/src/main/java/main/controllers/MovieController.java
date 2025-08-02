@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,6 @@ public class MovieController {
             this.userService = userService;
         }
 
-        //    @PreAuthorize("hasAuthority('can_read_users')")
         @GetMapping(value = "/all",
                 produces = MediaType.APPLICATION_JSON_VALUE)
         public Page<Movie> getAllMovie(
@@ -59,12 +59,7 @@ public class MovieController {
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-
-        System.out.println("pre username "+username);
-
         User user =  userService.loadUserByEmail(username);
-
-        System.out.println("username "+ user.getEmail());
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("title").ascending());
         return movieService.getUserMovies(user.getOwnedMovies(), pageable);
@@ -76,7 +71,7 @@ public class MovieController {
             return movieService.findById(id);
         };
 
-        //    @PreAuthorize("hasAuthority('can_update_users')")
+        @PreAuthorize("hasAuthority('ADMIN')")
         @PutMapping(value = "/update",
                 consumes = MediaType.APPLICATION_JSON_VALUE)
         public ResponseEntity<?> updateMovie(@RequestBody Movie movieDto) {
@@ -97,7 +92,7 @@ public class MovieController {
 
         }
 
-        //    @PreAuthorize("hasAuthority('can_write_users')")
+        @PreAuthorize("hasAuthority('ADMIN')")
         @PostMapping(value = "/add",
                 consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
@@ -131,7 +126,7 @@ public class MovieController {
 
         }
 
-        //    @PreAuthorize("hasAuthority('can_delete_users')")
+        @PreAuthorize("hasAuthority('ADMIN')")
         @DeleteMapping( value = "/delete")
         public ResponseEntity<?> deleteUser(@RequestParam("id") Long id){
             this.movieService.deleteById(id);

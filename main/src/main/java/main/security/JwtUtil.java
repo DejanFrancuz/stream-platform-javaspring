@@ -24,7 +24,7 @@ public class JwtUtil {
     }
 
     public List<GrantedAuthority> extractAuthorities(String token) {
-        List<String> authorities = (List<String>) extractAllClaims(token).get("authorities");
+        List<String> authorities = (List<String>) extractAllClaims(token).get("roles");
         return authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 
@@ -38,7 +38,7 @@ public class JwtUtil {
 
     public String generateToken(String username, Set<String> authorities) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("authorities", new ArrayList<>(authorities));
+        claims.put("roles", new ArrayList<>(authorities));
 
         return Jwts.builder()
                 .setClaims(claims)

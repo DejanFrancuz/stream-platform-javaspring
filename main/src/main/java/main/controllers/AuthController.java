@@ -27,32 +27,21 @@ public class AuthController {
             @RequestBody LoginRequest request,
             HttpServletResponse response
     ) {
-        // 1) autentifikuj i uzmi user podatke
-        System.out.println("ulazim " + request);
         User userDto = authService.login(request);
-        System.out.println("userDto " + userDto);
-        String username = userDto.getEmail(); // ili getUsername()
+        String username = userDto.getEmail();
 
-        System.out.println("nasao " + userDto + username);
-
-
-        // 2) izvuci permisije iz User objekta
         Set<String> perms = userDto.getPermissions();
-
-        // 3) generiši token
         String jwt = authService.generateToken(username, perms);
 
-        // 4) postavi HttpOnly cookie
         ResponseCookie cookie = ResponseCookie.from("jwt", jwt)
                 .httpOnly(true)
-                .secure(true)           // true na HTTPS
+                .secure(true)
                 .path("/")
                 .maxAge(Duration.ofHours(2))
                 .sameSite("Strict")
                 .build();
         response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        // 5) vrati korisničke podatke (token je u cookie‑ju)
         return ResponseEntity.ok(userDto);
     }
 
@@ -61,8 +50,6 @@ public class AuthController {
             @RequestBody LoginRequest request,
             HttpServletResponse response
     ) {
-        // 1) autentifikuj i uzmi user podatke
-        System.out.println("ulazim " + request);
         User userDto = authService.login(request);
 
         if(userDto != null){

@@ -5,6 +5,7 @@ import main.models.UserDto;
 import main.services.UserService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -24,6 +25,7 @@ public class UserController {
     }
 
 //    @PreAuthorize("hasAuthority('can_read_users')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/all",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public List<User> getAllUsers(){
@@ -45,7 +47,7 @@ public class UserController {
 
 
 
-//    @PreAuthorize("hasAuthority('can_update_users')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping(value = "/update",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateUser(@RequestBody UserDto userDto) {
@@ -66,7 +68,7 @@ public class UserController {
 
     }
 
-//    @PreAuthorize("hasAuthority('can_write_users')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping(value = "/add",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -77,7 +79,7 @@ public class UserController {
         return userService.save(user1);
     }
 
-//    @PreAuthorize("hasAuthority('can_delete_users')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping( value = "/delete")
     public ResponseEntity<?> deleteUser(@RequestParam("id") Long id){
         this.userService.deleteById(id);

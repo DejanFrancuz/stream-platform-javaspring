@@ -4,17 +4,20 @@ import main.models.Movie;
 import main.models.User;
 import main.services.MovieService;
 import main.services.UserService;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,12 +27,11 @@ import java.util.Optional;
 @RequestMapping("/api/movies")
 public class MovieController {
 
-
-
-
         private final MovieService movieService;
 
         private final UserService userService;
+
+    private static final String VIDEO_PATH = "C:/Users/Dejan/Desktop/stream-backend/media/videos/";
 
 
         public MovieController(MovieService movieService, UserService userService) {
@@ -63,6 +65,45 @@ public class MovieController {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("title").ascending());
         return movieService.getUserMovies(user.getOwnedMovies(), pageable);
+    }
+
+    @GetMapping(value = "watch/{movieId}", produces = "video/mp4")
+    public ResponseEntity<ResourceRegion> watchMovie(@PathVariable(value = "movieId") final Long movieId,
+                                                     @RequestHeader HttpHeaders headers) throws IOException {
+
+        Optional<Movie> optionalMovie = movieService.findById(movieId);
+
+        if (optionalMovie.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        System.out.print(optionalMovie.get().getVideoPreviewUrl());
+
+        FileSystemResource videoResource = new FileSystemResource(VIDEO_PATH + optionalMovie.get().getVideoPreviewUrl());
+        long contentLength = videoResource.contentLength();
+
+        MediaType mediaType = MediaTypeFactory.getMediaType(videoResource)
+                .orElse(MediaType.APPLICATION_OCTET_STREAM);
+
+        ResourceRegion region = getResourceRegion(videoResource, headers, contentLength);
+
+        return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+                .contentType(mediaType)
+                .body(region);
+    }
+
+    private ResourceRegion getResourceRegion(Resource video, HttpHeaders headers, long contentLength){
+        long chunkSize = 1_000_000;
+
+        if (headers.getRange().isEmpty()) {
+            return new ResourceRegion(video, 0, Math.min(chunkSize, contentLength));
+        } else {
+            HttpRange range = headers.getRange().get(0);
+            long start = range.getRangeStart(contentLength);
+            long end = range.getRangeEnd(contentLength);
+            long rangeLength = Math.min(chunkSize, end - start + 1);
+            return new ResourceRegion(video, start, rangeLength);
+        }
     }
 
         @GetMapping(value = "/get-one",

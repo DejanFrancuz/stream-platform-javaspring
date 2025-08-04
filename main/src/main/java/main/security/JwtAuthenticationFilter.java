@@ -29,7 +29,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String username = jwtUtil.extractUsername(jwt);
             List<GrantedAuthority> authorities = jwtUtil.extractAuthorities(jwt);
 
-            System.out.println("Authorities: " + authorities);
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(username, null, authorities);
 

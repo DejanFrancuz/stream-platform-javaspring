@@ -18,7 +18,7 @@ public class MovieService implements IService<Movie, Long> {
 
 
     public Page<Movie> getAllMovies(List<Long> movieIds, Pageable pageable) {
-        return movieRepository.findAllByMovieIdNotIn(movieIds,pageable);
+        return movieIds.isEmpty() ? movieRepository.findAll(pageable) : movieRepository.findAllByMovieIdNotIn(movieIds,pageable);
     }
 
     public Page<Movie> getUserMovies(List<Long> movieIds, Pageable pageable) {
@@ -49,4 +49,5 @@ public class MovieService implements IService<Movie, Long> {
     public void deleteById(Long id) {
         movieRepository.deleteById(id);
     }
+
 }

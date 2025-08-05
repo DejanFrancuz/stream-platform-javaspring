@@ -3,8 +3,10 @@ package main.services;
 
 import main.interfaces.IService;
 import main.models.User;
+import main.models.UserDto;
 import main.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,10 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +24,7 @@ public class UserService implements IService<User, Long>, UserDetailsService {
     private UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
+
 
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
@@ -38,6 +38,24 @@ public class UserService implements IService<User, Long>, UserDetailsService {
             throw new UsernameNotFoundException("User name "+username+" not found");
         }
         return new org.springframework.security.core.userdetails.User(username, myUser.getPassword(), getAuthorities(myUser.getPermissions()));
+    }
+
+    public User updateUser(UserDto userDto) {
+        Optional<User> user = findById(userDto.getUserId());
+
+        if (user.isEmpty()) {
+            return null;
+        }
+
+        user.get().setFirstName(userDto.getFirstName());
+        user.get().setLastName(userDto.getLastName());
+        user.get().setEmail(userDto.getEmail());
+        user.get().setPermissions(new HashSet<>(Arrays.asList(userDto.getPermissions())));
+        user.get().setPassword(userDto.getPassword());
+
+        user.get().setPassword(passwordEncoder.encode(user.get().getPassword()));
+
+        return this.userRepository.save(user.get());
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(Set<String> permissions) {

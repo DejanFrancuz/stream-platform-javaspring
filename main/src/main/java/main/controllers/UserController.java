@@ -6,12 +6,10 @@ import main.services.UserService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -19,6 +17,7 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -47,36 +46,22 @@ public class UserController {
 
 
 
-    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping(value = "/update",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateUser(@RequestBody UserDto userDto) {
-        Optional<User> optionalUser = userService.findById(userDto.getUserId());
-
-        if (optionalUser.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        User user = optionalUser.get();
-
-        user.setFirstName(userDto.getFirstName());
-        user.setLastName(userDto.getLastName());
-        user.setEmail(userDto.getEmail());
-        user.setPermissions(new HashSet<>(Arrays.asList(userDto.getPermissions())));
-
-        return ResponseEntity.ok(userService.save(user));
-
+        return ResponseEntity.ok(userService.updateUser(userDto));
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping(value = "/add",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public User addUser(@RequestBody UserDto user){
-        HashSet<String> permissionsSet = new HashSet<>(Arrays.asList(user.getPermissions()));
-        User user1 = new User(user.getFirstName(),user.getLastName(),user.getEmail(), permissionsSet);
-        user1.setUsername(user.getFirstName() + user.getLastName());
-        return userService.save(user1);
+    public User addUser(@RequestBody UserDto userDto){
+        HashSet<String> permissionsSet = new HashSet<>();
+        permissionsSet.add("Member");
+        User user = new User(userDto.getFirstName(),userDto.getLastName(),userDto.getEmail(), permissionsSet);
+        user.setUsername(userDto.getFirstName() + userDto.getLastName());
+        return userService.save(user);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")

@@ -1,6 +1,7 @@
 package main.controllers;
 
 import main.models.Movie;
+import main.models.MovieFilterDto;
 import main.models.User;
 import main.services.MovieService;
 import main.services.UserService;
@@ -43,29 +44,44 @@ public class MovieController {
                 produces = MediaType.APPLICATION_JSON_VALUE)
         public Page<Movie> getAllMovie(
                 @RequestParam("page") int page,
-                @RequestParam("size") int size
+                @RequestParam("size") int size,
+                @RequestParam("myMovies") boolean myMovies,
+                @RequestParam( name = "genre", required = false) String genre,
+                @RequestParam( name = "decade", required = false) String decade
         ){
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication.getName();
             User user =  userService.loadUserByEmail(username);
 
+            MovieFilterDto filter = new MovieFilterDto();
+            filter.setGenre(genre);
+            filter.setDecade(decade);
+
+
             Pageable pageable = PageRequest.of(page, size, Sort.by("title").descending());
-            return movieService.getAllMovies(user.getOwnedMovies(), pageable);
+            return movieService.filterMovies(myMovies, user.getOwnedMovies(), filter, pageable);
         };
 
-    @GetMapping(value = "/my",
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public Page<Movie> getMyMovies(
-            @RequestParam("page") int page,
-            @RequestParam("size") int size
-    ) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User user =  userService.loadUserByEmail(username);
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by("title").ascending());
-        return movieService.getUserMovies(user.getOwnedMovies(), pageable);
-    }
+//    @GetMapping(value = "/my",
+//            produces = MediaType.APPLICATION_JSON_VALUE)
+//    public Page<Movie> getMyMovies(
+//            @RequestParam("myMovies") boolean myMovies,
+//            @RequestParam("page") int page,
+//            @RequestParam("size") int size,
+//            @RequestParam( name = "genre", required = false) String genre,
+//            @RequestParam( name = "decade", required = false) String decade
+//    ) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        String username = authentication.getName();
+//        User user =  userService.loadUserByEmail(username);
+//
+//        MovieFilterDto filter = new MovieFilterDto();
+//        filter.setGenre(genre);
+//        filter.setDecade(decade);
+//
+//        Pageable pageable = PageRequest.of(page, size, Sort.by("title").ascending());
+//        return movieService.getUserMovies(user.getOwnedMovies(), pageable);
+//    }
 
     @GetMapping(value = "watch/{movieId}", produces = "video/mp4")
     public ResponseEntity<ResourceRegion> watchMovie(@PathVariable(value = "movieId") final Long movieId,

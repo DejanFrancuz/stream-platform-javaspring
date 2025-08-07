@@ -51,9 +51,10 @@ public class UserService implements IService<User, Long>, UserDetailsService {
         user.get().setLastName(userDto.getLastName());
         user.get().setEmail(userDto.getEmail());
         user.get().setPermissions(new HashSet<>(Arrays.asList(userDto.getPermissions())));
-        user.get().setPassword(userDto.getPassword());
 
-        user.get().setPassword(passwordEncoder.encode(user.get().getPassword()));
+        if(userDto.getPassword() != null) {
+            user.get().setPassword(passwordEncoder.encode(userDto.getPassword()));
+        }
 
         return this.userRepository.save(user.get());
     }
@@ -76,7 +77,7 @@ public class UserService implements IService<User, Long>, UserDetailsService {
 
     @Override
     public User save(User user) {
-        user.setPassword(passwordEncoder.encode(user.getUsername()));
+//        user.setPassword(passwordEncoder.encode(user.getUsername()));
         return this.userRepository.save(user);
     }
 

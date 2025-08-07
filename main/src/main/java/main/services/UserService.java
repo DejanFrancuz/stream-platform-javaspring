@@ -32,6 +32,23 @@ public class UserService implements IService<User, Long>, UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public List<UserDto> findAllUsers() {
+        List<User> rows = this.userRepository.findAll();
+        List<UserDto> dtos = new ArrayList<>();
+
+        for (User row : rows) {
+            UserDto dto = new UserDto(
+                    (Long) row.getUserId(),
+                    (String) row.getFirstName(),
+                    (String) row.getLastName(),
+                    (String) row.getEmail(),
+                    new HashSet<>(row.getPermissions())
+            );
+            dtos.add(dto);
+        }
+        return dtos;
+    }
+
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User myUser = this.userRepository.findByEmail(username);
         if(myUser == null) {
@@ -50,7 +67,7 @@ public class UserService implements IService<User, Long>, UserDetailsService {
         user.get().setFirstName(userDto.getFirstName());
         user.get().setLastName(userDto.getLastName());
         user.get().setEmail(userDto.getEmail());
-        user.get().setPermissions(new HashSet<>(Arrays.asList(userDto.getPermissions())));
+        user.get().setPermissions((userDto.getPermissions()));
 
         if(userDto.getPassword() != null) {
             user.get().setPassword(passwordEncoder.encode(userDto.getPassword()));
@@ -77,7 +94,7 @@ public class UserService implements IService<User, Long>, UserDetailsService {
 
     @Override
     public User save(User user) {
-//        user.setPassword(passwordEncoder.encode(user.getUsername()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return this.userRepository.save(user);
     }
 

@@ -1,6 +1,7 @@
 package main.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@AllArgsConstructor
 @Entity
 @Getter
 @Setter
@@ -37,6 +39,11 @@ public class User {
     @Column(name = "movie_id")
     private List<Long> ownedMovies = new ArrayList<>();
 
+    @ElementCollection
+    @CollectionTable(name = "liked_movies", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "movie_id")
+    private List<Long> likedMovies = new ArrayList<>();
+
     @Column
     private String password;
 
@@ -49,6 +56,14 @@ public class User {
 
     public User(String firstName,String lastName, String email, Set<String> permissions){
         this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.permissions =  new HashSet<>(permissions);
+    }
+
+    public User(String firstName, String password, String lastName, String email, Set<String> permissions){
+        this.firstName = firstName;
+        this.password = password;
         this.lastName = lastName;
         this.email = email;
         this.permissions =  new HashSet<>(permissions);

@@ -27,7 +27,7 @@ public class Movie {
 
     private String posterUrl;
 
-    private String videoPreviewUrl; // npr. link do kratkog videa (ako hostuješ na disku ili cloudu)
+    private String videoPreviewUrl;
 
     private String genre;
 

@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,6 +47,8 @@ public class MovieController {
                 @RequestParam("page") int page,
                 @RequestParam("size") int size,
                 @RequestParam("myMovies") boolean myMovies,
+                @RequestParam( name = "like", required = false) boolean like,
+                @RequestParam( name = "sort", required = false) boolean sort,
                 @RequestParam( name = "genre", required = false) String genre,
                 @RequestParam( name = "decade", required = false) String decade
         ){
@@ -56,32 +59,22 @@ public class MovieController {
             MovieFilterDto filter = new MovieFilterDto();
             filter.setGenre(genre);
             filter.setDecade(decade);
+            if(like) filter.setLike(true);
 
+            List<Long> ownedMovies;
+            if(user.getPermissions().contains("ADMIN")){
+                ownedMovies = new LinkedList<>();
+            } else {
+                ownedMovies = user.getOwnedMovies();
+            }
 
-            Pageable pageable = PageRequest.of(page, size, Sort.by("title").descending());
-            return movieService.filterMovies(myMovies, user.getOwnedMovies(), filter, pageable);
+            Sort sortType;
+            if(sort){ sortType = Sort.by(Sort.Direction.ASC, "year");
+            } else sortType = Sort.by(Sort.Direction.DESC, "year");
+
+            Pageable pageable = PageRequest.of(page, size, sortType);
+            return movieService.filterMovies(myMovies, user.getLikedMovies() ,user.getOwnedMovies(), filter, pageable);
         };
-
-//    @GetMapping(value = "/my",
-//            produces = MediaType.APPLICATION_JSON_VALUE)
-//    public Page<Movie> getMyMovies(
-//            @RequestParam("myMovies") boolean myMovies,
-//            @RequestParam("page") int page,
-//            @RequestParam("size") int size,
-//            @RequestParam( name = "genre", required = false) String genre,
-//            @RequestParam( name = "decade", required = false) String decade
-//    ) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String username = authentication.getName();
-//        User user =  userService.loadUserByEmail(username);
-//
-//        MovieFilterDto filter = new MovieFilterDto();
-//        filter.setGenre(genre);
-//        filter.setDecade(decade);
-//
-//        Pageable pageable = PageRequest.of(page, size, Sort.by("title").ascending());
-//        return movieService.getUserMovies(user.getOwnedMovies(), pageable);
-//    }
 
     @GetMapping(value = "watch/{movieId}", produces = "video/mp4")
     public ResponseEntity<ResourceRegion> watchMovie(@PathVariable(value = "movieId") final Long movieId,
@@ -176,12 +169,36 @@ public class MovieController {
             user.getOwnedMovies().add(movie.getMovieId());
             userService.save(user);
 
-            movie.getOwners().add(user.getUserId());
-            movieService.save(movie);
+//            movie.getOwners().add(user.getUserId());
+//            movieService.save(movie);
 
             return ResponseEntity.ok().build();
 
         }
+
+    @PostMapping(value = "/like-movie-for-person",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> likeMovieForPerson(@RequestBody long movieId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user =  userService.loadUserByEmail(username);
+
+
+        Optional<Movie> optionalMovie =  movieService.findById(movieId);
+
+        if(optionalMovie.isEmpty()) return ResponseEntity.notFound().build();
+
+        Movie movie = optionalMovie.get();
+
+        if(!user.getLikedMovies().contains(movie.getMovieId())) {
+            user.getLikedMovies().add(movie.getMovieId());
+        } else user.getLikedMovies().remove(movie.getMovieId());
+        userService.save(user);
+
+        return ResponseEntity.ok().build();
+    }
 
         @PreAuthorize("hasAuthority('ADMIN')")
         @DeleteMapping( value = "/delete")

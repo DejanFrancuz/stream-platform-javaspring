@@ -18,7 +18,6 @@ import java.util.List;
 @Component
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-//    private final UserService userService;
     private final JwtUtil jwtUtil;
 
     @Override

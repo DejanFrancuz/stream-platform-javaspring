@@ -27,8 +27,8 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/all",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<User> getAllUsers(){
-        return userService.findAll();
+    public List<UserDto> getAllUsers(){
+        return userService.findAllUsers();
     };
 
     @GetMapping(value = "/getone",
@@ -52,14 +52,13 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(userDto));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping(value = "/add",
+    @PostMapping(value = "/create",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public User addUser(@RequestBody UserDto userDto){
         HashSet<String> permissionsSet = new HashSet<>();
         permissionsSet.add("Member");
-        User user = new User(userDto.getFirstName(),userDto.getLastName(),userDto.getEmail(), permissionsSet);
+        User user = new User(userDto.getFirstName(), userDto.getPassword(), userDto.getLastName(),userDto.getEmail(), permissionsSet);
         user.setUsername(userDto.getFirstName() + userDto.getLastName());
         return userService.save(user);
     }

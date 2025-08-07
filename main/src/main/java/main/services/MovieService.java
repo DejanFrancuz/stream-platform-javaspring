@@ -25,9 +25,13 @@ public class MovieService implements IService<Movie, Long> {
         return movieIds.isEmpty() ? movieRepository.findAll(pageable) : movieRepository.findAllByMovieIdNotIn(movieIds,pageable);
     }
 
-    public Page<Movie> filterMovies(boolean myMovies, List<Long> movieIds, MovieFilterDto filter, Pageable pageable) {
+    public Page<Movie> filterMovies(boolean myMovies, List<Long> likedMovies, List<Long> ownedMovies, MovieFilterDto filter, Pageable pageable) {
         Specification<Movie> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            if (filter.isLike()) {
+                predicates.add(root.get("movieId").in(likedMovies));
+            }
 
             if (filter.getGenre() != null && !filter.getGenre().isBlank()) {
                 predicates.add(cb.equal(root.get("genre"), filter.getGenre()));
@@ -39,13 +43,13 @@ public class MovieService implements IService<Movie, Long> {
                 predicates.add(cb.between(root.get("year"), startYear, endYear));
             }
 
-            if (!movieIds.isEmpty()) {
+//            if (!ownedMovies.isEmpty()) {
                 if(!myMovies){
-                    predicates.add(cb.not(root.get("movieId").in(movieIds)));
+                    predicates.add(cb.not(root.get("movieId").in(ownedMovies)));
                 } else {
-                    predicates.add(root.get("movieId").in(movieIds));
+                    predicates.add(root.get("movieId").in(ownedMovies));
                 }
-            }
+//            }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 

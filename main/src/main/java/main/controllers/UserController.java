@@ -6,7 +6,6 @@ import main.services.UserService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -18,12 +17,10 @@ public class UserController {
 
     private final UserService userService;
 
-
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-//    @PreAuthorize("hasAuthority('can_read_users')")
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/all",
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -43,9 +40,6 @@ public class UserController {
         return userService.loadUserByEmail(email);
     };
 
-
-
-
     @PutMapping(value = "/update",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateUser(@RequestBody UserDto userDto) {
@@ -57,9 +51,9 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public User addUser(@RequestBody UserDto userDto){
         HashSet<String> permissionsSet = new HashSet<>();
-        permissionsSet.add("Member");
-        User user = new User(userDto.getFirstName(), userDto.getPassword(), userDto.getLastName(),userDto.getEmail(), permissionsSet);
-        user.setUsername(userDto.getFirstName() + userDto.getLastName());
+        permissionsSet.add("MEMBER");
+        User user = new User(userDto.getFirstName(), userDto.getUsername(), userDto.getPassword(), userDto.getLastName(),userDto.getEmail(), permissionsSet);
+        System.out.println("user pravim " + user.getPermissions());
         return userService.save(user);
     }
 

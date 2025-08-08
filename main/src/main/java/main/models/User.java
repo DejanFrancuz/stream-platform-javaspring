@@ -61,8 +61,9 @@ public class User {
         this.permissions =  new HashSet<>(permissions);
     }
 
-    public User(String firstName, String password, String lastName, String email, Set<String> permissions){
+    public User(String firstName, String username, String password, String lastName, String email, Set<String> permissions){
         this.firstName = firstName;
+        this.username = username;
         this.password = password;
         this.lastName = lastName;
         this.email = email;

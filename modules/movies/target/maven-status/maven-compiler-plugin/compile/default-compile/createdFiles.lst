@@ -1,4 +1,0 @@
-movies\model\Movie.class
-movies\controller\MovieController.class
-movies\repository\MovieRepository.class
-movies\service\MovieService.class

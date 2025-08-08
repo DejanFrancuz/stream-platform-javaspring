@@ -32,10 +32,6 @@ public class JwtUtil {
         return extractAllClaims(token).getSubject();
     }
 
-    public boolean isTokenExpired(String token){
-        return extractAllClaims(token).getExpiration().before(new Date());
-    }
-
     public String generateToken(String username, Set<String> authorities) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", new ArrayList<>(authorities));

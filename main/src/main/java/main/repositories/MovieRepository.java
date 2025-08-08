@@ -10,11 +10,10 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.List;
 
 public interface MovieRepository extends JpaRepository<Movie, Long>, JpaSpecificationExecutor<Movie> {
-Page<Movie> findAll(Pageable pageable);
-Page<Movie> findAllByMovieIdNotIn(List<Long> movieIds, Pageable pageable);
-    Page<Movie> findAllByMovieIdNotIn(List<Long> movieIds, Specification<Movie> spec, Pageable pageable);
+    Page<Movie> findAll(Pageable pageable);
 
-    Page<Movie> findAllByMovieIdIn(List<Long> movieIds, Specification<Movie> spec, Pageable pageable);
+    Page<Movie> findAllByMovieIdNotIn(List<Long> movieIds, Pageable pageable);
+
     Page<Movie> findAllByMovieIdIn(List<Long> movieIds, Pageable pageable);
 
 }

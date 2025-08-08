@@ -6,7 +6,6 @@ import main.models.User;
 import main.models.UserDto;
 import main.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,10 +37,11 @@ public class UserService implements IService<User, Long>, UserDetailsService {
 
         for (User row : rows) {
             UserDto dto = new UserDto(
-                    (Long) row.getUserId(),
-                    (String) row.getFirstName(),
-                    (String) row.getLastName(),
-                    (String) row.getEmail(),
+                    row.getUserId(),
+                    row.getUsername(),
+                    row.getFirstName(),
+                    row.getLastName(),
+                    row.getEmail(),
                     new HashSet<>(row.getPermissions())
             );
             dtos.add(dto);

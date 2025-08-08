@@ -29,52 +29,46 @@ import java.util.Optional;
 @RequestMapping("/api/movies")
 public class MovieController {
 
-        private final MovieService movieService;
+    private final MovieService movieService;
 
-        private final UserService userService;
+    private final UserService userService;
 
     private static final String VIDEO_PATH = "C:/Users/Dejan/Desktop/stream-backend/media/videos/";
 
 
-        public MovieController(MovieService movieService, UserService userService) {
-            this.movieService = movieService;
-            this.userService = userService;
-        }
+    public MovieController(MovieService movieService, UserService userService) {
+        this.movieService = movieService;
+        this.userService = userService;
+    }
 
-        @GetMapping(value = "/all",
-                produces = MediaType.APPLICATION_JSON_VALUE)
-        public Page<Movie> getAllMovie(
-                @RequestParam("page") int page,
-                @RequestParam("size") int size,
-                @RequestParam("myMovies") boolean myMovies,
-                @RequestParam( name = "like", required = false) boolean like,
-                @RequestParam( name = "sort", required = false) boolean sort,
-                @RequestParam( name = "genre", required = false) String genre,
-                @RequestParam( name = "decade", required = false) String decade
-        ){
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-            User user =  userService.loadUserByEmail(username);
+    @GetMapping(value = "/all",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Page<Movie> getAllMovie(
+            @RequestParam("page") int page,
+            @RequestParam("size") int size,
+            @RequestParam("myMovies") boolean myMovies,
+            @RequestParam(name = "like", required = false) boolean like,
+            @RequestParam(name = "sort", required = false) boolean sort,
+            @RequestParam(name = "genre", required = false) String genre,
+            @RequestParam(name = "decade", required = false) String decade
+    ) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userService.loadUserByEmail(username);
 
-            MovieFilterDto filter = new MovieFilterDto();
-            filter.setGenre(genre);
-            filter.setDecade(decade);
-            if(like) filter.setLike(true);
+        MovieFilterDto filter = new MovieFilterDto();
+        filter.setGenre(genre);
+        filter.setDecade(decade);
+        if (like) filter.setLike(true);
 
-            List<Long> ownedMovies;
-            if(user.getPermissions().contains("ADMIN")){
-                ownedMovies = new LinkedList<>();
-            } else {
-                ownedMovies = user.getOwnedMovies();
-            }
+        Sort sortType;
+        if (sort) {
+            sortType = Sort.by(Sort.Direction.ASC, "year");
+        } else sortType = Sort.by(Sort.Direction.DESC, "year");
 
-            Sort sortType;
-            if(sort){ sortType = Sort.by(Sort.Direction.ASC, "year");
-            } else sortType = Sort.by(Sort.Direction.DESC, "year");
-
-            Pageable pageable = PageRequest.of(page, size, sortType);
-            return movieService.filterMovies(myMovies, user.getLikedMovies() ,user.getOwnedMovies(), filter, pageable);
-        };
+        Pageable pageable = PageRequest.of(page, size, sortType);
+        return movieService.filterMovies(myMovies, user.getLikedMovies(), user.getOwnedMovies(), filter, pageable);
+    }
 
     @GetMapping(value = "watch/{movieId}", produces = "video/mp4")
     public ResponseEntity<ResourceRegion> watchMovie(@PathVariable(value = "movieId") final Long movieId,
@@ -101,7 +95,7 @@ public class MovieController {
                 .body(region);
     }
 
-    private ResourceRegion getResourceRegion(Resource video, HttpHeaders headers, long contentLength){
+    private ResourceRegion getResourceRegion(Resource video, HttpHeaders headers, long contentLength) {
         long chunkSize = 1_000_000;
 
         if (headers.getRange().isEmpty()) {
@@ -115,66 +109,63 @@ public class MovieController {
         }
     }
 
-        @GetMapping(value = "/get-one",
-                produces = MediaType.APPLICATION_JSON_VALUE)
-        public Optional<Movie> getMovie(@RequestParam("movieId") Long id){
-            return movieService.findById(id);
-        };
+    @GetMapping(value = "/get-one",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Optional<Movie> getMovie(@RequestParam("movieId") Long id) {
+        return movieService.findById(id);
+    }
 
-        @PreAuthorize("hasAuthority('ADMIN')")
-        @PutMapping(value = "/update",
-                consumes = MediaType.APPLICATION_JSON_VALUE)
-        public ResponseEntity<?> updateMovie(@RequestBody Movie movieDto) {
-            Optional<Movie> optionalMovie = movieService.findById(movieDto.getMovieId());
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping(value = "/update",
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateMovie(@RequestBody Movie movieDto) {
+        Optional<Movie> optionalMovie = movieService.findById(movieDto.getMovieId());
 
-            if (optionalMovie.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
-
-            Movie movie = optionalMovie.get();
-
-            movie.setTitle(movieDto.getTitle());
-            movie.setYear(movieDto.getYear());
-            movie.setDescription(movieDto.getDescription());
-            movie.setGenre(movieDto.getGenre());
-
-            return ResponseEntity.ok(movieService.save(movie));
-
+        if (optionalMovie.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
 
-        @PreAuthorize("hasAuthority('ADMIN')")
-        @PostMapping(value = "/add",
-                consumes = MediaType.APPLICATION_JSON_VALUE,
-                produces = MediaType.APPLICATION_JSON_VALUE)
-        public Movie createMovie(@RequestBody Movie movie) {
-            return movieService.save(movie);
-        }
+        Movie movie = optionalMovie.get();
 
-        @PostMapping(value = "/add-movie-for-person",
-                consumes = MediaType.APPLICATION_JSON_VALUE,
-                produces = MediaType.APPLICATION_JSON_VALUE)
-        public ResponseEntity<?> addMovieForPerson(@RequestBody long movieId) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
+        movie.setTitle(movieDto.getTitle());
+        movie.setYear(movieDto.getYear());
+        movie.setDescription(movieDto.getDescription());
+        movie.setGenre(movieDto.getGenre());
 
-            User user =  userService.loadUserByEmail(username);
+        return ResponseEntity.ok(movieService.save(movie));
+
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping(value = "/add",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Movie createMovie(@RequestBody Movie movie) {
+        return movieService.save(movie);
+    }
+
+    @PostMapping(value = "/add-movie-for-person",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> addMovieForPerson(@RequestBody long movieId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userService.loadUserByEmail(username);
 
 
-            Optional<Movie> optionalMovie =  movieService.findById(movieId);
+        Optional<Movie> optionalMovie = movieService.findById(movieId);
 
-            if(optionalMovie.isEmpty()) return ResponseEntity.notFound().build();
+        if (optionalMovie.isEmpty()) return ResponseEntity.notFound().build();
 
-            Movie movie = optionalMovie.get();
+        Movie movie = optionalMovie.get();
 
-            user.getOwnedMovies().add(movie.getMovieId());
-            userService.save(user);
+        user.getOwnedMovies().add(movie.getMovieId());
+        userService.save(user);
 
-//            movie.getOwners().add(user.getUserId());
-//            movieService.save(movie);
+        return ResponseEntity.ok().build();
 
-            return ResponseEntity.ok().build();
-
-        }
+    }
 
     @PostMapping(value = "/like-movie-for-person",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -183,16 +174,16 @@ public class MovieController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
-        User user =  userService.loadUserByEmail(username);
+        User user = userService.loadUserByEmail(username);
 
 
-        Optional<Movie> optionalMovie =  movieService.findById(movieId);
+        Optional<Movie> optionalMovie = movieService.findById(movieId);
 
-        if(optionalMovie.isEmpty()) return ResponseEntity.notFound().build();
+        if (optionalMovie.isEmpty()) return ResponseEntity.notFound().build();
 
         Movie movie = optionalMovie.get();
 
-        if(!user.getLikedMovies().contains(movie.getMovieId())) {
+        if (!user.getLikedMovies().contains(movie.getMovieId())) {
             user.getLikedMovies().add(movie.getMovieId());
         } else user.getLikedMovies().remove(movie.getMovieId());
         userService.save(user);
@@ -200,11 +191,10 @@ public class MovieController {
         return ResponseEntity.ok().build();
     }
 
-        @PreAuthorize("hasAuthority('ADMIN')")
-        @DeleteMapping( value = "/delete")
-        public ResponseEntity<?> deleteUser(@RequestParam("id") Long id){
-            this.movieService.deleteById(id);
-            return ResponseEntity.ok().build();
-        }
-
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @DeleteMapping(value = "/delete")
+    public ResponseEntity<?> deleteUser(@RequestParam("id") Long id) {
+        this.movieService.deleteById(id);
+        return ResponseEntity.ok().build();
     }
+}

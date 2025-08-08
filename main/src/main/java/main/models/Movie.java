@@ -6,7 +6,6 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-//import org.springframework.data.annotation.Id;
 
 @Entity
 @Getter
